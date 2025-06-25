@@ -1,7 +1,8 @@
 import os
 import shutil
 from concurrent.futures import ThreadPoolExecutor
-
+import cv2
+import numpy as np
 class ClasificadorImg_cada100:
     '''
     Permite parsear imagenes tageadas como 102, 201, 307, 405 etc en clases de a 100 siempre y cuando el nombre sea COMPLETAMENTE NUMERICO-> 0123.jpg (OK) _0123A.jpg (mal)   
@@ -22,6 +23,7 @@ class ClasificadorImg_cada100:
     ###########
     # Setters
     ###########
+    
     @property
     def pathImg(self) -> str:
         return self.__path
@@ -70,6 +72,7 @@ class ClasificadorImg_cada100:
         print("Guardando")
 
     def procesar_archivo(self, file, pathdir):
+        print("as")
         """Procesa un archivo individual."""
         if file.endswith('.jpg') or file.endswith('.png') or file.endswith('.JPG') or file.endswith('.PNG'):
             fileName = file.split(".")[0]
@@ -94,6 +97,7 @@ class ClasificadorImg_cada100:
         with ThreadPoolExecutor() as executor:
             for dir in os.listdir(self.__path):
                 pathdir = os.path.join(self.__path, dir)  # Dirección absoluta de la carpeta
+                print(pathdir)
                 if os.path.isdir(pathdir):  # Asegurarse de que sea un directorio
                     for file in os.listdir(pathdir):
                         executor.submit(self.procesar_archivo, file, pathdir)
@@ -106,3 +110,52 @@ class ClasificadorImg_cada100:
                 os.makedirs(self.absClassDir)
             else:
                 print(f"La carpeta {self.absClassDir} ya existe.")
+                
+    
+                
+'''                
+class alterarImg(cv2):
+    
+    Permite redimensionar imagenes a un tamaño especifico  y modificar algunas propiedades
+    
+    def __init__(self, pathImg: str):
+        self.__pathImg = pathImg
+        self.size=None
+        self.sizeX=None
+        self.sizeY=None
+
+    def redimensionar(self, *args, **kwargs):
+        #si paso la keyword size, redimensiona a ese tamaño
+        if 'size' in kwargs:
+            self.size = kwargs.get('size',[])
+            if len(self.size) == 2:
+                img = cv2.imread(self.__pathImg)
+                img = cv2.resize(img, self.size)
+                return img
+            else:
+                print("Error: la lista de tamaño no tiene el formato correcto")
+            img = cv2.imread(self.pathImg)
+            img = cv2.resize(img, self.size)
+            return img
+        elif 'sizeX' in kwargs:
+            self.sizeX = kwargs.get('sizeX',0)
+            #me fijo que sizeX sea no nula, un numero y además entera
+            if self.sizeX is not None and isinstance(self.sizeX, int):
+                if self.sizeX <= 0:
+                    print("Error: el tamaño no puede ser menor o igual a 0")
+                    return
+                img = cv2.imread(self.__pathImg)
+                img = cv2.resize(img, (self.sizeX, self.sizeY))
+                return img
+            img = cv2.imread(self.__pathImg)
+            img = cv2.resize(img, (self.sizeX, self.sizeY))
+            return img
+        
+        
+    def recortar(self, x: int, y: int, w: int, h: int):
+        img = cv2.imread(self.pathImg)
+        img = img[y:y+h, x:x+w]
+        return img'''
+    
+    
+    
